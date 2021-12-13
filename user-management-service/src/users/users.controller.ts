@@ -34,13 +34,13 @@ export class UsersController {
   }*/
 
   /**
-   * Given a username, returns the matching username's user profile.
+   * Given a valid jwt token returns the authenticated user's profile.
    * An authentication header with valid credentials must be provided
    * to access the desired user profile.
    * @param params 
    * @returns a UserProfile.
    */
-  @Get(':username')
+  @Get('/profile')
   // @Header('Authorization', 'none')
   getUserProfile(@Param() params): Promise<UserProfile> {
     return this.usersService.getUserProfile(params.username);

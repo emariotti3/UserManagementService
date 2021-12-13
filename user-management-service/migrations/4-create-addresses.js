@@ -11,13 +11,11 @@ module.exports = {
       },
       city_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
+        allowNull: false
       },
       street: {
         type: Sequelize.STRING,
-        allowNull: false,
-        primaryKey: true,
+        allowNull: false
       },
       created_at: {
         allowNull: true,
