@@ -1,12 +1,11 @@
 build
 npm-debug.log
 package-lock.json
-.DS_Store
 .prettierrc
 
 # compiled output
-/dist
-/node_modules
+dist
+node_modules
 
 # Logs
 logs
