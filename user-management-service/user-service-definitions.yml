@@ -14,7 +14,7 @@ securityDefinitions:
   apiToken:
     type: apiKey
     in: header
-    name: X-API-Key
+    name: Authorization
 
 paths:
   /users:
@@ -69,7 +69,7 @@ paths:
       parameters:
         - in: "body"
           name: "credentials"
-          description: "The user name for login"
+          description: "The user credentials for login"
           required: true
           schema:
             type: "object"
@@ -87,6 +87,8 @@ paths:
           schema:
             $ref: "#/definitions/AuthToken"
         "400":
+          description: "Bad request"
+        "401":
           description: "Invalid username/password supplied"
         "500":
           description: "Internal server error"
@@ -109,7 +111,7 @@ paths:
           description: "Unauthorized. Invalid credentials provided."
         "500":
           description: "Internal server error"
-  /users/{username}:
+  /users/profile:
     get:
       tags:
         - "user"
@@ -118,12 +120,6 @@ paths:
       operationId: "getUserProfile"
       produces:
         - "application/json"
-      parameters:
-        - name: "username"
-          in: "path"
-          required: true
-          type: "string"
-          description: "The username of the user whose profile is being requested."
       security:
         - apiToken: []
       responses:
@@ -173,5 +169,7 @@ definitions:
   AuthToken:
     type: "object"
     properties:
-      authToken:
+      token:
+        type: "string"
+      expiresIn:
         type: "string"

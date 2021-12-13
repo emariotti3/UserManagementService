@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { UserModel } from './models/user.model';
@@ -6,6 +6,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UtilsService } from '../utils/utils.service';
 import { UserProfile } from './interfaces/userProfile.interface';
+import { UserCredentialsDto } from './dto/user-credentials.dto';
+import { UserToken } from './interfaces/userToken.interface';
 
 @Injectable()
 export class UsersService {
@@ -75,9 +77,40 @@ export class UsersService {
 
   }
 
-  loginUser(): string {
-      return 'User has been logged in!'
+
+
+  loginUser(userCredentials: UserCredentialsDto): Promise<UserToken> {
+    try {
+
+      const getUserQuery = "SELECT username, password FROM users WHERE username = $username";
+
+      return this.sequelize.query(getUserQuery, 
+        { 
+          type: QueryTypes.SELECT,
+          plain: true,
+          bind: { username: userCredentials.username }
+      }).then(user => {
+
+        if (!user) {
+          console.error(`Error occurred attempting to login user: no matching user found for username ${userCredentials.username}!`);
+          throw new UnauthorizedException(`No matching user found for username ${userCredentials.username}!`)
+        }
+
+        if (user['password'] != this.utils.hashPassword(userCredentials.password)) {
+          console.error(`Error occurred attempting to login user ${userCredentials.username}: password did not match!`);
+          throw new UnauthorizedException('Invalid password!')
+        }
+
+        return this.utils.generateJWT(userCredentials);
+      });
+
+    } catch (error) {
+      console.error(`Error occurred attempting to login user ${userCredentials.username}: ${error}`);
+      throw error;
+    }
   }
+
+
 
   getUserProfile(username: string): Promise<UserProfile> {
     try {

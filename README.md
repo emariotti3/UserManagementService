@@ -6,7 +6,7 @@ This document provides the necessary information to setup and run the User Manag
     * Login to the service providing basic authentication credentials.
     * Secure endpoint to query user data.
 
-To view this service's backend API checkout the `user-management-service/user-service-definitions.yml` document.
+To view this service's backend API check out the `user-management-service/user-service-definitions.yml` document.
 
 ## Requirements
 
