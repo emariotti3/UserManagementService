@@ -1,0 +1,177 @@
+swagger: "2.0"
+info:
+  description: "This document describes the api provided by the User Service project."
+  version: "1.0.0"
+  title: "User Service"
+host: "localhost:8080"
+basePath: "/v1"
+tags:
+  - name: "user"
+    description: "User operations"
+schemes:
+  - "http"
+securityDefinitions:
+  apiToken:
+    type: apiKey
+    in: header
+    name: X-API-Key
+
+paths:
+  /users:
+    post:
+      tags:
+        - "user"
+      summary: "Register user"
+      description: "Endpoint used to register a new user in the system. This endpoint can be used by anyone."
+      operationId: "createUser"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "userInfo"
+          description: "Created user object"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              username:
+                type: "string"
+              password:
+                type: "string"
+              name:
+                type: "string"
+              street:
+                type: "string"
+              cityId:
+                type: "number"
+            example:
+              username: "ajcrowley"
+              password: "azfell123"
+              name: "Anthony Crowley"
+              street: "38a Adam's Row"
+              cityId: 5
+      responses:
+        "201":
+          description: "successful operation."
+        "400":
+          description: "Invalid user information provided."
+        "500":
+          description: "Internal server error."
+  /users/login:
+    post:
+      tags:
+        - "user"
+      summary: "Logs user into the system."
+      description: "Logs user into the system."
+      operationId: "loginUser"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "credentials"
+          description: "The user name for login"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              username:
+                type: "string"
+              password:
+                type: "string"
+            example:
+              username: "ajcrowley"
+              password: "azfell123"
+      responses:
+        "200":
+          description: "User successfully logged in."
+          schema:
+            $ref: "#/definitions/AuthToken"
+        "400":
+          description: "Invalid username/password supplied"
+        "500":
+          description: "Internal server error"
+  /users/logout:
+    post:
+      tags:
+        - "user"
+      summary: "Logs out current logged in user session"
+      description: ""
+      operationId: "logoutUser"
+      produces:
+        - "application/json"
+      parameters: []
+      security:
+        - apiToken: []
+      responses:
+        "200":
+          description: "User successfully logged out"
+        "401":
+          description: "Unauthorized. Invalid credentials provided."
+        "500":
+          description: "Internal server error"
+  /users/{username}:
+    get:
+      tags:
+        - "user"
+      summary: "Get user's profile given a valid jwt token."
+      description: "Get user's profile given a valid jwt token. This endpoint can only be accessed by authorized (logged in) users."
+      operationId: "getUserProfile"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "username"
+          in: "path"
+          required: true
+          type: "string"
+          description: "The username of the user whose profile is being requested."
+      security:
+        - apiToken: []
+      responses:
+        "200":
+          description: "Successfully fetched user."
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Bad request."
+        "401":
+          description: "Unauthorized operation. Invalid credentials provided."
+        "404":
+          description: "User with provided userId was not found."
+        "500":
+          description: "Internal server error."
+
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      address:
+        type: "object"
+        properties:
+          schema:
+            $ref: "#/definitions/Address"
+    example:
+      id: 3
+      name: "Sherlock Holmes"
+      address:
+        street: "221b Baker St."
+        city: "London"
+        country: "England"
+  Address:
+    type: "object"
+    properties:
+      street:
+        type: "string"
+      city:
+        type: "string"
+      country:
+        type: "string"
+  AuthToken:
+    type: "object"
+    properties:
+      authToken:
+        type: "string"
