@@ -7,6 +7,11 @@ const ENCODING = 'hex'
 @Injectable()
 export class UtilsService {
 
+    /**
+     * Given a password, create a hash for that password,
+     * @param {string} password - The password to hash.
+     * @returns {string} a hashed password.
+     */
     static hashPassword(password): string {
         const hash = createHash(HASH_FUNCTION)
         hash.update(password)

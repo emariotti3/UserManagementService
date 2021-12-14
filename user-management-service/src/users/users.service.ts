@@ -1,19 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { UserModel } from './models/user.model';
-import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UtilsService } from '../utils/utils.service';
-import { UserProfile } from './interfaces/userProfile.interface';
+import { UserProfile } from './interfaces/user-profile.interface';
 import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel(UserModel) private userModel: typeof UserModel, 
-    private sequelize: Sequelize) {}
+  constructor(private sequelize: Sequelize) {}
 
+  /**
+   * Returns a list with all the registered users.
+   * @returns {Promise<UserModel[]>} - A list of users.
+   */
   getUsers(): Promise<UserModel[]> {
     return this.sequelize.query("SELECT id, username FROM users", 
     { 
@@ -23,11 +25,14 @@ export class UsersService {
     });
   }
 
+  /**
+   * Creates a new user profile, given a user. 
+   * @param {CreateUserDto} newUser - Represents a new user's data.
+   */
   async createUser(newUser: CreateUserDto): Promise<void> {
 
     const hashedPwd = UtilsService.hashPassword(newUser.password);
 
-    // TODO: validate street, name and username
     const createUserQuery = "INSERT INTO users(username, password) VALUES ($username, $pwd) RETURNING id";
     const createAddressQuery = "INSERT INTO addresses(city_id, street) VALUES ($cityId, $street) RETURNING id";
     const createProfileQuery =  "INSERT INTO profiles(user_id, address_id, name) VALUES ($userId, $addressId, $name)";
@@ -72,9 +77,13 @@ export class UsersService {
           })
         })
       });
-
   }
 
+  /**
+   * Finds and returns the user with the provided username.
+   * @param {string} username - The username to be used for the search.
+   * @returns {Promise<User | undefined>} - A user's data, if a matching record is found, or null otherwise.
+   */
   findOne(username: string): Promise<User | undefined> {
     try {
 
@@ -100,40 +109,11 @@ export class UsersService {
     }
   }
 
-
-  /*loginUser(userCredentials: UserCredentialsDto): Promise<UserToken> {
-    try {
-
-      const getUserQuery = "SELECT username, password FROM users WHERE username = $username";
-
-      return this.sequelize.query(getUserQuery, 
-        { 
-          type: QueryTypes.SELECT,
-          plain: true,
-          bind: { username: userCredentials.username }
-      }).then(user => {
-
-        if (!user) {
-          console.error(`Error occurred attempting to login user: no matching user found for username ${userCredentials.username}!`);
-          throw new UnauthorizedException(`No matching user found for username ${userCredentials.username}!`)
-        }
-
-        if (user['password'] != this.utils.hashPassword(userCredentials.password)) {
-          console.error(`Error occurred attempting to login user ${userCredentials.username}: password did not match!`);
-          throw new UnauthorizedException('Invalid password!')
-        }
-
-        return this.utils.generateJWT(userCredentials);
-      });
-
-    } catch (error) {
-      console.error(`Error occurred attempting to login user ${userCredentials.username}: ${error}`);
-      throw error;
-    }
-  }*/
-
-
-
+  /**
+   * Finds and returns a user's profile information given username.
+   * @param {string} username - The username to be used for the search.
+   * @returns {Promise<UserProfile>} - A user's profile information, if a matching record is found.
+   */
   getUserProfile(username: string): Promise<UserProfile> {
     try {
       const getUserProfileQuery = 
@@ -149,6 +129,11 @@ export class UsersService {
         plain: true,
         bind: { username: username }
       }).then(profileInfo => {
+
+        if (!profileInfo) {
+          console.error(`No profile found for username ${username}`);
+          throw new NotFoundException('No profile found for provided username!');
+        }
 
         const userProfile = { 
           'id': profileInfo['id'], 

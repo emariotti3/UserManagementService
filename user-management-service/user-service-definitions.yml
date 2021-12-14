@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   title: "User Service"
 host: "localhost:8080"
-basePath: "/v1"
+basePath: "/"
 tags:
   - name: "user"
     description: "User operations"
@@ -80,7 +80,7 @@ paths:
         "401":
           description: "Unauthorized operation. Invalid credentials provided."
         "404":
-          description: "User with provided userId was not found."
+          description: "User with provided username was not found."
         "500":
           description: "Internal server error."
   /auth/login:
