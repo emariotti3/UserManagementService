@@ -22,8 +22,14 @@ In order to run this project you are required to install:
 
 - A .env file has been provided to facilitate application setup, but it is strongly advised that this file (or the environment variables provided within it) should be overriden to provide better security.
 
+## Run Service Tests
+
+- cd into service directory `cd user-management-service`
+- run the following command `npm test`
+
 ## TODOs and Pending Improvements 
 
 - A refresh token mechanism should be provided to avoid possible MITM attacks.
 - Database connection settings should be dynamically set in runtime.
+- Testing coverage must be improved.
 

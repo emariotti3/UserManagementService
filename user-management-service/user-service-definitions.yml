@@ -3,7 +3,7 @@ info:
   description: "This document describes the api provided by the User Service project."
   version: "1.0.0"
   title: "User Service"
-host: "localhost:8080"
+host: "localhost:3000"
 basePath: "/"
 tags:
   - name: "user"
@@ -153,3 +153,5 @@ definitions:
     properties:
       access_token:
         type: "string"
+    examples:
+      access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFqY3Jvd2xleSIsImlhdCI6MTYzOTQ1ODYzMywiZXhwIjoxNjM5NDU4ODEzfQ.MUQwJ-63lrU8UGVNiMIQpocJ69DLo1QUgVIctOjK53Q"

@@ -1,10 +1,11 @@
-import { IsString, IsInt, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsInt, MinLength, MaxLength, IsAlphanumeric, IsAlpha } from 'class-validator';
 
 export class CreateUserDto {
 
     @IsString()
     @MinLength(5)
     @MaxLength(100)
+    @IsAlphanumeric()
     username: string;
 
     @IsString()
@@ -13,6 +14,7 @@ export class CreateUserDto {
     password: string;
 
     @IsString()
+    @IsAlpha()
     @MinLength(5)
     @MaxLength(100)
     name: string;
