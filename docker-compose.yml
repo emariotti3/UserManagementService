@@ -15,8 +15,6 @@ services:
   service:
     build: ./user-management-service
     container_name: service
-    environment:
-      APP_KEY: ${APP_KEY}
     ports:
       - "3000:3000"
     depends_on: 

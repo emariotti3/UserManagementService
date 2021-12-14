@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { UserModel } from './models/user.model';
@@ -37,7 +37,6 @@ export class UsersService {
     const createAddressQuery = "INSERT INTO addresses(city_id, street) VALUES ($cityId, $street) RETURNING id";
     const createProfileQuery =  "INSERT INTO profiles(user_id, address_id, name) VALUES ($userId, $addressId, $name)";
 
-
     return this.sequelize.transaction().then(tx => {
         return this.sequelize.query(createUserQuery, { 
           type: QueryTypes.INSERT,
@@ -70,12 +69,15 @@ export class UsersService {
             }).then(function () {
               console.log(`Successfully created user ${newUser.username}: Committing transaction.`);
               return tx.commit();
-            }).catch(function (err) {
-              console.error(`Error creating user ${newUser.username}: ${err}. Executing transaction rollback.`);
-              return tx.rollback();
-            });
+            })
+          });
+        }).catch(error => {
+          console.error(`Error creating user ${newUser.username}: ${error}. Executing transaction rollback.`);
+          tx.rollback();
+          throw new InternalServerErrorException({
+            error: `Error creating user ${newUser.username}: ${error}` 
           })
-        })
+        });
       });
   }
 
