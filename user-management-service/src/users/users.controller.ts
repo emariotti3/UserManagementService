@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Header, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, UseGuards, Request, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import {  UserCredentialsDto } from './dto/user-credentials.dto';
 import { UserProfile } from './interfaces/userProfile.interface';
-import { UserToken } from './interfaces/userToken.interface';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -19,21 +18,6 @@ export class UsersController {
   }
 
   /**
-   * Logs a user into the system, given a username and password.
-   * @param userCredentials a set of credentials: username and password to authenticate the user with. 
-   * @returns an authentication token to be used in subsequent requests.
-   */
-  @Post('login')
-  loginUser(@Body() userCredentials: UserCredentialsDto): Promise<UserToken> {
-    return this.usersService.loginUser(userCredentials);
-  }
-
-  /*@Post('logout')
-  logout(): string {
-    return this.usersService.getUsers();
-  }*/
-
-  /**
    * Given a valid jwt token returns the authenticated user's profile.
    * An authentication header with valid credentials must be provided
    * to access the desired user profile.
@@ -41,8 +25,8 @@ export class UsersController {
    * @returns a UserProfile.
    */
   @Get('/profile')
-  // @Header('Authorization', 'none')
-  getUserProfile(@Param() params): Promise<UserProfile> {
-    return this.usersService.getUserProfile(params.username);
+  @UseGuards(JwtAuthGuard)
+  getUserProfile(@Request() req): Promise<UserProfile> {
+    return this.usersService.getUserProfile(req.user.username);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { UserModel } from './models/user.model';
@@ -6,15 +6,13 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UtilsService } from '../utils/utils.service';
 import { UserProfile } from './interfaces/userProfile.interface';
-import { UserCredentialsDto } from './dto/user-credentials.dto';
-import { UserToken } from './interfaces/userToken.interface';
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
 
   constructor(@InjectModel(UserModel) private userModel: typeof UserModel, 
-    private sequelize: Sequelize,
-    private utils: UtilsService) {}
+    private sequelize: Sequelize) {}
 
   getUsers(): Promise<UserModel[]> {
     return this.sequelize.query("SELECT id, username FROM users", 
@@ -27,7 +25,7 @@ export class UsersService {
 
   async createUser(newUser: CreateUserDto): Promise<void> {
 
-    const hashedPwd = this.utils.hashPassword(newUser.password);
+    const hashedPwd = UtilsService.hashPassword(newUser.password);
 
     // TODO: validate street, name and username
     const createUserQuery = "INSERT INTO users(username, password) VALUES ($username, $pwd) RETURNING id";
@@ -77,9 +75,33 @@ export class UsersService {
 
   }
 
+  findOne(username: string): Promise<User | undefined> {
+    try {
+
+      const getUserQuery = "SELECT * FROM users WHERE username = $username LIMIT 1";
+
+      return this.sequelize.query(getUserQuery, 
+        { 
+          type: QueryTypes.SELECT,
+          plain: true,
+          bind: { username: username }
+      }).then(user => {
+        
+        if (!user) {
+          return null;
+        }
+
+        return {'id': user['id'], 'username': user['username'], 'password': user['password']}
+      });
+
+    } catch (error) {
+      console.error(`Error occurred attempting to fetch user ${username}: ${error}`);
+      throw error;
+    }
+  }
 
 
-  loginUser(userCredentials: UserCredentialsDto): Promise<UserToken> {
+  /*loginUser(userCredentials: UserCredentialsDto): Promise<UserToken> {
     try {
 
       const getUserQuery = "SELECT username, password FROM users WHERE username = $username";
@@ -108,7 +130,7 @@ export class UsersService {
       console.error(`Error occurred attempting to login user ${userCredentials.username}: ${error}`);
       throw error;
     }
-  }
+  }*/
 
 
 

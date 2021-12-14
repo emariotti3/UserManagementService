@@ -1,12 +1,13 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { AppController } from './app/app.controller';
-import { AppService } from './app/app.service';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UsersController } from './users/users.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UserModel } from './users/models/user.model';
 import { UtilsModule } from './utils/utils.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ 
@@ -24,6 +25,7 @@ import { UtilsModule } from './utils/utils.module';
       retryAttempts: 10,
       models: [ UserModel ]
     }),
+    AuthModule,
     UsersModule,
     UtilsModule 
   ],

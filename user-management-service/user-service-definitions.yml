@@ -8,6 +8,8 @@ basePath: "/v1"
 tags:
   - name: "user"
     description: "User operations"
+  - name: "auth"
+    description: "Authentication operations"
 schemes:
   - "http"
 securityDefinitions:
@@ -57,10 +59,34 @@ paths:
           description: "Invalid user information provided."
         "500":
           description: "Internal server error."
-  /users/login:
-    post:
+  /users/profile:
+    get:
       tags:
         - "user"
+      summary: "Get user's profile given a valid jwt token."
+      description: "Get user's profile given a valid jwt token. This endpoint can only be accessed by authorized (logged in) users."
+      operationId: "getUserProfile"
+      produces:
+        - "application/json"
+      security:
+        - apiToken: []
+      responses:
+        "200":
+          description: "Successfully fetched user."
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Bad request."
+        "401":
+          description: "Unauthorized operation. Invalid credentials provided."
+        "404":
+          description: "User with provided userId was not found."
+        "500":
+          description: "Internal server error."
+  /auth/login:
+    post:
+      tags:
+        - "auth"
       summary: "Logs user into the system."
       description: "Logs user into the system."
       operationId: "loginUser"
@@ -92,50 +118,6 @@ paths:
           description: "Invalid username/password supplied"
         "500":
           description: "Internal server error"
-  /users/logout:
-    post:
-      tags:
-        - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-        - "application/json"
-      parameters: []
-      security:
-        - apiToken: []
-      responses:
-        "200":
-          description: "User successfully logged out"
-        "401":
-          description: "Unauthorized. Invalid credentials provided."
-        "500":
-          description: "Internal server error"
-  /users/profile:
-    get:
-      tags:
-        - "user"
-      summary: "Get user's profile given a valid jwt token."
-      description: "Get user's profile given a valid jwt token. This endpoint can only be accessed by authorized (logged in) users."
-      operationId: "getUserProfile"
-      produces:
-        - "application/json"
-      security:
-        - apiToken: []
-      responses:
-        "200":
-          description: "Successfully fetched user."
-          schema:
-            $ref: "#/definitions/User"
-        "400":
-          description: "Bad request."
-        "401":
-          description: "Unauthorized operation. Invalid credentials provided."
-        "404":
-          description: "User with provided userId was not found."
-        "500":
-          description: "Internal server error."
-
 definitions:
   User:
     type: "object"
@@ -169,7 +151,5 @@ definitions:
   AuthToken:
     type: "object"
     properties:
-      token:
-        type: "string"
-      expiresIn:
+      access_token:
         type: "string"
