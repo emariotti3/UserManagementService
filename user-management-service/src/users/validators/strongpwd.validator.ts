@@ -2,6 +2,10 @@ import {registerDecorator, ValidationArguments, ValidationOptions, ValidatorCons
 
 const CONTAINS_LETTERS_REGEX = /[a-zA-Z]/g
 
+/**
+ * Validates that a password has at least one uppercase character
+ * and one lowercase character.
+ */
 export function IsStrongPassword(validationOptions?: ValidationOptions) {
     return (object: any, propertyName: string) => {
         registerDecorator({

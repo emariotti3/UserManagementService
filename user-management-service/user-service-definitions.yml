@@ -48,7 +48,7 @@ paths:
                 type: "number"
             example:
               username: "ajcrowley"
-              password: "azfell123"
+              password: "Azfell123"
               name: "Anthony Crowley"
               street: "38a Adam's Row"
               cityId: 5

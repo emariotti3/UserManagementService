@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { CacheModule, Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -11,9 +11,11 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigService } from './config/config.service';
 import { Configuration } from './config/config.keys';
 import { ConfigModule } from './config/config.module';
+import { RedisCacheModule } from './cache/redis.module';
 
 @Module({
   imports: [ 
+    RedisCacheModule,
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useClass: SequelizeConfigService
