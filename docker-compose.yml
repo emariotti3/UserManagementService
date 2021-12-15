@@ -1,6 +1,11 @@
 version: "3"
 
 services:
+  redis:
+    image: redis
+    container_name: cache
+    ports:
+      - "6379:6379"
   db:
     container_name: db
     image: bitnami/postgresql
@@ -15,8 +20,6 @@ services:
   service:
     build: ./user-management-service
     container_name: service
-    environment:
-      APP_KEY: ${APP_KEY}
     ports:
       - "3000:3000"
     depends_on: 
