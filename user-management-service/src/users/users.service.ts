@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Logger, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { UserModel } from './models/user.model';
@@ -9,6 +9,8 @@ import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
+
+  private readonly logger = new Logger(UsersService.name);
 
   constructor(private sequelize: Sequelize) {}
 
@@ -45,7 +47,7 @@ export class UsersService {
           transaction: tx
         }).then(result => {
 
-          console.log(`Created user ${result[0]['id']}!`);
+          this.logger.log(`Created user ${result[0]['id']}!`);
 
           const userId: number = result[0]['id'];
           const promiseAddressId = this.sequelize.query(createAddressQuery, { 
@@ -60,19 +62,19 @@ export class UsersService {
             const createdUserId = result[0];
             const createdAddressId = result[1][0]['id'];
 
-            console.log(`Created address ${createdAddressId} for user ${createdUserId}!`);
+            this.logger.log(`Created address ${createdAddressId} for user ${createdUserId}!`);
   
             return this.sequelize.query(createProfileQuery, { 
               type: QueryTypes.INSERT,
               bind: { userId: createdUserId, addressId: createdAddressId, name: newUser.name },
               transaction: tx
             }).then(function () {
-              console.log(`Successfully created user ${newUser.username}: Committing transaction.`);
+              //this.logger.log(`Successfully created user ${newUser.username}: Committing transaction.`);
               return tx.commit();
             })
           });
         }).catch(error => {
-          console.error(`Error creating user ${newUser.username}: ${error}. Executing transaction rollback.`);
+          this.logger.error(`Error creating user ${newUser.username}: ${error}. Executing transaction rollback.`);
           tx.rollback();
           throw new InternalServerErrorException({
             error: `Error creating user ${newUser.username}: ${error}` 
@@ -106,7 +108,7 @@ export class UsersService {
       });
 
     } catch (error) {
-      console.error(`Error occurred attempting to fetch user ${username}: ${error}`);
+      this.logger.error(`Error occurred attempting to fetch user ${username}. ${error}`);
       throw error;
     }
   }
@@ -133,7 +135,7 @@ export class UsersService {
       }).then(profileInfo => {
 
         if (!profileInfo) {
-          console.error(`No profile found for username ${username}`);
+          this.logger.error(`No profile found for username ${username}`);
           throw new NotFoundException('No profile found for provided username!');
         }
 
@@ -151,8 +153,10 @@ export class UsersService {
       });
 
     } catch(error) {
-      console.error(`Error occurred while attempting to retrieve user profile information for user ${username}: ${error}`);
-      throw error;
+      this.logger.error(`Error occurred while attempting to retrieve user profile information for user ${username}: ${error}`);
+      throw new InternalServerErrorException({
+        error: `Error fetching user profile for ${username}. ${error}` 
+      });
     }
   }
 

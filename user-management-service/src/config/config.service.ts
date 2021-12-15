@@ -1,7 +1,10 @@
+import { Logger } from '@nestjs/common';
 import { existsSync, readFileSync } from 'fs';
 import { parse } from 'dotenv';
 
 export class ConfigService {
+
+    private readonly logger = new Logger(ConfigService.name);
 
     private readonly envConfig: {
         [key: string]: string
@@ -15,7 +18,7 @@ export class ConfigService {
             const existsPath  = existsSync(envFilePath);
 
             if (!existsPath) {
-                console.log('.env file does not exist');
+                this.logger.log('.env file does not exist');
                 process.exit(0);
             }
 

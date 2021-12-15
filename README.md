@@ -37,6 +37,5 @@ Otherwise, you'll be required to set up a local relational database, and provide
 ## TODOs and Pending Improvements 
 
 - A refresh token mechanism should be provided to avoid possible MITM attacks.
-- Database connection settings should be dynamically set in runtime.
 - Testing coverage must be improved.
 
